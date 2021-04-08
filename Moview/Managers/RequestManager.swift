@@ -26,7 +26,7 @@ class RequestManager: NSObject
     }
     
     
-    //MARK: - Search Moview By Title
+    //MARK: - Search Movie By Title
     
     class func searchMovieFor(name: String, _ completion: @escaping (_ success: Bool, _ result: MovieSearchResult?) -> Void)
     {
@@ -41,7 +41,36 @@ class RequestManager: NSObject
             completion(success, response.value)
         }
     }
+    
+    
+    //MARK: - Download Movie Poster Image at URL
+    
+    class func getImageFromURL(path: String, _ completion: @escaping (_ success: Bool, _ image: UIImage?) -> Void)
+    {
+        requestWith(url: path, method: .get).response {
+            response in
+                let success = (response.data != nil && response.data != nil)
+                var image: UIImage? = nil
+            
+                if success
+                {
+                    image = UIImage(data: response.data!)
+                }
+            
+            completion(success, image)
+        }
+    }
+    
+    
+    //MARK: - Check Internet Reachability
+    
+    class var isConnectedToInternet:Bool
+    {
+        return NetworkReachabilityManager()!.isReachable
+    }
 }
+
+
 
 
 //MARK: - Movie Search Result Object
