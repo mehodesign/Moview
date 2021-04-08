@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="MoviePreviewView" customModule="Moview" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="400"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="film" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="6JZ-4Q-BtS">
+                    <rect key="frame" x="0.0" y="45" width="414" height="353.5"/>
+                    <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </imageView>
+                <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WIS-Rw-3Fo">
+                    <rect key="frame" x="12" y="321" width="390" height="67"/>
+                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="eZ6-vh-RVZ">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="67"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" text="Movie Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qQw-rM-Mm1">
+                                <rect key="frame" x="12" y="12" width="342" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="tu1-cm-6Im">
+                                <rect key="frame" x="354" y="15.5" width="24" height="36.5"/>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="BYy-QZ-1nM"/>
+                                    <constraint firstAttribute="width" constant="24" id="toc-yl-n1u"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Full movie details" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZ7-Ao-jLC">
+                                <rect key="frame" x="12" y="40.5" width="98" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="uZ7-Ao-jLC" firstAttribute="top" secondItem="qQw-rM-Mm1" secondAttribute="bottom" constant="8" id="LBe-8q-I4c"/>
+                            <constraint firstItem="qQw-rM-Mm1" firstAttribute="leading" secondItem="eZ6-vh-RVZ" secondAttribute="leading" constant="12" id="MCc-TB-Pb0"/>
+                            <constraint firstItem="qQw-rM-Mm1" firstAttribute="top" secondItem="eZ6-vh-RVZ" secondAttribute="top" constant="12" id="PvK-uW-hEZ"/>
+                            <constraint firstItem="tu1-cm-6Im" firstAttribute="centerY" secondItem="eZ6-vh-RVZ" secondAttribute="centerY" id="X27-Az-aE5"/>
+                            <constraint firstAttribute="trailing" secondItem="tu1-cm-6Im" secondAttribute="trailing" constant="12" id="ay7-5G-dB7"/>
+                            <constraint firstAttribute="bottom" secondItem="uZ7-Ao-jLC" secondAttribute="bottom" constant="12" id="cdf-Pv-Xwf"/>
+                            <constraint firstItem="tu1-cm-6Im" firstAttribute="leading" secondItem="qQw-rM-Mm1" secondAttribute="trailing" id="ct0-9S-GvZ"/>
+                            <constraint firstItem="uZ7-Ao-jLC" firstAttribute="leading" secondItem="qQw-rM-Mm1" secondAttribute="leading" id="gwc-VB-Wuo"/>
+                        </constraints>
+                    </view>
+                    <blurEffect style="systemThinMaterial"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="12"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </visualEffectView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstItem="6JZ-4Q-BtS" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="2gc-Nq-KFH"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="WIS-Rw-3Fo" secondAttribute="trailing" constant="12" id="9Bh-fr-4is"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="6JZ-4Q-BtS" secondAttribute="bottom" id="AEQ-Pa-jOP"/>
+                <constraint firstItem="6JZ-4Q-BtS" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="O8B-2e-1Fn"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="6JZ-4Q-BtS" secondAttribute="trailing" id="crp-V9-Rv1"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="WIS-Rw-3Fo" secondAttribute="bottom" constant="12" id="kKk-8f-3vb"/>
+                <constraint firstItem="WIS-Rw-3Fo" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="12" id="qDu-aB-J7U"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="movieTitle" destination="qQw-rM-Mm1" id="7Qt-zc-YBL"/>
+                <outlet property="previewImage" destination="6JZ-4Q-BtS" id="59a-jP-Ekp"/>
+                <outletCollection property="gestureRecognizers" destination="axq-aq-9xY" appends="YES" id="gG1-3q-VUb"/>
+            </connections>
+            <point key="canvasLocation" x="44.927536231884062" y="152.67857142857142"/>
+        </view>
+        <tapGestureRecognizer id="axq-aq-9xY">
+            <connections>
+                <action selector="userTapGestureAction:" destination="iN0-l3-epB" id="gvN-tK-wXb"/>
+            </connections>
+        </tapGestureRecognizer>
+    </objects>
+    <resources>
+        <image name="chevron.right" catalog="system" width="96" height="128"/>
+        <image name="film" catalog="system" width="128" height="93"/>
+    </resources>
+</document>
