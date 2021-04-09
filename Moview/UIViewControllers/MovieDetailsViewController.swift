@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FirebaseAnalytics
+
 
 class MovieDetailsViewController: UIViewController
 {
@@ -52,7 +54,12 @@ class MovieDetailsViewController: UIViewController
         
         let yearString = movieDetails?.yearOfRelease ?? NSLocalizedString("Unknown", comment: "")
         let durationString = movieDetails?.lengthMinutes ?? NSLocalizedString("Unknown", comment: "")
-        yearAndDurationLabel.text = ("Year: " + yearString + ", Duration: " + durationString)
+        yearAndDurationLabel.text = (NSLocalizedString("Unknown", comment: "") +
+                                        ": " +
+                                        yearString + ", " +
+                                        NSLocalizedString("Duration", comment: "") +
+                                        ": " +
+                                        durationString)
         
         let imdbIdString = movieDetails?.imdbId ?? NSLocalizedString("Unknown", comment: "")
         imdbIdLabel.text = ("IMDB ID: " + imdbIdString)
@@ -68,6 +75,16 @@ class MovieDetailsViewController: UIViewController
     private func setPosterImage(image: UIImage)
     {
         moviePreviewImage.image = image
+    }
+    
+    private func logCurrentMovieDetails()
+    {
+        FirebaseAnalytics.Analytics.logEvent(AnalyticsEventViewSearchResults, parameters: [
+            AnalyticsParameterItemName: movieDetails?.movieTitle ?? NSLocalizedString("No title", comment: ""),
+            AnalyticsParameterItemID: movieDetails?.imdbId ?? NSLocalizedString("Not Rated", comment: ""),
+            AnalyticsParameterContentType: "MovieDetails",
+            "year_of_release": movieDetails?.yearOfRelease ?? NSLocalizedString("Unknown", comment: "")
+        ])
     }
     
     

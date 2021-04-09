@@ -28,10 +28,8 @@ class MoviePreviewView: UIView
         
         movieTitle.text = movieContent.movieTitle ?? NSLocalizedString("No title", comment: "")
         
-        if movieContent.posterImage != nil
-        {
-            setPosterImage(image: movieContent.posterImage!)
-        }
+        let posterImage = movieContent.posterImage ?? UIImage(systemName: "questionmark.circle")!
+        setPosterImage(image: posterImage)
     }
     
     public func getMovieContentId() -> String?

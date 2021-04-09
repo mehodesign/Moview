@@ -7,4 +7,6 @@ target 'Moview' do
 
   # Pods for Moview
   pod 'AlamofireObjectMapper', '~> 5.2'
+  pod 'Firebase/Analytics'
+  pod 'Firebase/RemoteConfig'
 end

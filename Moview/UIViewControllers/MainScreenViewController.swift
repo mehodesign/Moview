@@ -8,11 +8,11 @@
 import UIKit
 
 
-class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegate
+class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegate, PreviousSearchResultsViewDelegate
 {
-    private let SEGUE_IDENTIFIER_TO_MAIN_SCREEN = "MainScreenToDetailsScreen"
+    private let SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN = "MainScreenToDetailsScreen"
     private let ANIMATION_DURATION = 0.25 //seconds
-    private let MOVIE_PREVIEW_FRAME_HEIGHT: CGFloat = 460 //pixels
+    private let MOVIE_PREVIEW_FRAME_HEIGHT: CGFloat = 430 //pixels
     
     @IBOutlet var searchFieldBar: UIView!
     @IBOutlet var searchTextField: UITextField!
@@ -23,6 +23,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     @IBOutlet var searchBarContainerHeightConstraint: NSLayoutConstraint!
     
     private var moviePreviewView: MoviePreviewView?
+    private var previousSearchResultsView: PreviousSearchResultsView?
     private var movieContentToDisplayDetails: MovieContent?
     private var isDisplayingSearchResult: Bool = false
     
@@ -41,13 +42,6 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool)
-    {
-        super.viewWillAppear(animated)
-        
-        print("--> View Will Appear")
-    }
-    
     func searchMovieForTitle(title: String)
     {
         //Show Activity Indicator to Notify User
@@ -63,24 +57,26 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
             {
                 self.displaySearchResult(movieDetails: movieContent!)
             }
+            //Show Error Alert
             else
             {
-                //TODO:Show Error Alert
+                let title = NSLocalizedString("Movie Not Found", comment: "")
+                let message = NSLocalizedString("Please search another movie title", comment: "")
+                self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
             }
         }
     }
     
     func displaySearchResult(movieDetails: MovieContent)
     {
+        //Add Movie Preview View into Search Base View
+        addMoviePreviewViewToScreen()
+        
+        //Set Movie Content of Movie Preview View
+        moviePreviewView!.setMoviePreviewContent(movieContent: movieDetails)
+        
         if !isDisplayingSearchResult
         {
-            //Add Movie Preview View into Search Base View
-            addMoviePreviewViewToScreen()
-            moviePreviewView?.isHidden = false
-            
-            //Set Movie Content of Movie Preview View
-            moviePreviewView!.setMoviePreviewContent(movieContent: movieDetails)
-            
             //Set New Search Base View Height
             searchBarContainerHeightConstraint.constant = (searchFieldBar.frame.size.height + MOVIE_PREVIEW_FRAME_HEIGHT)
             
@@ -101,14 +97,32 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
             
             movieDetailsContainer.addSubview(moviePreviewView!)
             
-            //Set Dimensions of Preview View
-            moviePreviewView!.frame = CGRect(x: 0,
-                                            y: searchFieldBar.frame.size.height,
-                                            width: searchFieldBar.frame.size.width,
-                                            height: MOVIE_PREVIEW_FRAME_HEIGHT)
-            
             movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: moviePreviewView!))
+            movieDetailsContainer.superview?.layoutIfNeeded()
         }
+        
+        moviePreviewView?.isHidden = false
+        previousSearchResultsView?.isHidden = true
+    }
+    
+    func addPreviousSearchResultsViewToScreen()
+    {
+        if previousSearchResultsView == nil
+        {
+            previousSearchResultsView = (Bundle.main.loadNibNamed("PreviousSearchResultsView", owner: self, options: nil)?.first as! PreviousSearchResultsView)
+            previousSearchResultsView!.delegate = self
+            
+            movieDetailsContainer.addSubview(previousSearchResultsView!)
+            
+            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: previousSearchResultsView!))
+            previousSearchResultsView?.superview?.layoutIfNeeded()
+        }
+        
+        //Refresh Previous Movie Searches Before Showing The View
+        previousSearchResultsView?.setPreviousSearchResults(movieContents: MovieContentManager.getPreviousSearchResults())
+        
+        previousSearchResultsView?.isHidden = false
+        moviePreviewView?.isHidden = true
     }
     
     func getMovieDetailsConstraintsFor(view: UIView) -> [NSLayoutConstraint]
@@ -131,6 +145,8 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         if let detailsViewController = segue.destination as? MovieDetailsViewController
         {
             detailsViewController.setMovieDetails(movieContent: movieContentToDisplayDetails!)
+            addPreviousSearchResultsViewToScreen()
+            searchTextField.text = ""
         }
     }
     
@@ -153,15 +169,18 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     @IBAction func searchButtonPressAction(_ sender: Any)
     {
-        //TODO:Show Activity Indicator
-        
-        if let searchString = searchTextField.text
+        //Checking Search String is Valid
+        if let searchString = searchTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         {
             searchMovieForTitle(title: searchString)
+            searchTextField.resignFirstResponder()
         }
+        //Show Error Alert
         else
         {
-            //TODO:Show Error Alert
+            let title = NSLocalizedString("Search Error", comment: "")
+            let message = NSLocalizedString("Please enter a valid movie title to search.", comment: "")
+            self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
         }
     }
     
@@ -177,8 +196,17 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     {
         movieContentToDisplayDetails = movieContent
         
-        performSegue(withIdentifier: SEGUE_IDENTIFIER_TO_MAIN_SCREEN, sender: self)
+        performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
     }
     
+    
+    //MARK - Previous Search Results View Delegate Methods
+    
+    func userDidSelectSearchResult(selectedMovieContent: MovieContent)
+    {
+        movieContentToDisplayDetails = selectedMovieContent
+        
+        performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
+    }
     
 }

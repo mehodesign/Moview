@@ -48,11 +48,12 @@ class MovieContentManager: NSObject
                 DispatchQueue.main.async {
                     completion(success, movieContent)
                 }
-                
             }
         }
-        
-        completion(false, nil)
+        else
+        {
+            completion(false, nil)
+        }
     }
     
     private class func downloadPosterImageFor(path: String, movieContent: MovieContent)
@@ -73,7 +74,7 @@ class MovieContentManager: NSObject
         }
     }
     
-    class func GetPreviousSearchResults() -> [MovieContent]
+    class func getPreviousSearchResults() -> [MovieContent]
     {
         return MovieContentManager.selfInstance.previousSearchResults
     }

@@ -37,7 +37,7 @@ class RequestManager: NSObject
         
         requestWith(url: BASE_API_URL, method: .get, parameters: parameters).responseObject {
             (response: DataResponse<MovieSearchResult>) in
-                let success = (response.result.isSuccess && response.value != nil)
+            let success = (response.result.isSuccess && response.value?.response == "True")
             completion(success, response.value)
         }
     }
@@ -77,6 +77,8 @@ class RequestManager: NSObject
 
 struct MovieSearchResult: Mappable
 {
+    var response: String?
+    var errorMessage: String?
     var title: String?
     var year: String?
     var duration: String?
@@ -90,6 +92,8 @@ struct MovieSearchResult: Mappable
     
     mutating func mapping(map: Map)
     {
+        response <- map["Response"]
+        errorMessage <- map["Error"]
         title <- map["Title"]
         year <- map["Year"]
         duration <- map["Runtime"]

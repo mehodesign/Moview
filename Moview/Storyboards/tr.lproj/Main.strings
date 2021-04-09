@@ -1,0 +1,45 @@
+
+/* Class = "UILabel"; text = "Moview"; ObjectID = "39A-ki-cIP"; */
+"39A-ki-cIP.text" = "Moview";
+
+/* Class = "UITextField"; placeholder = "Please enter a movie title"; ObjectID = "4bo-ze-Mu7"; */
+"4bo-ze-Mu7.placeholder" = "Lütfen bir film adı giriniz";
+
+/* Class = "UILabel"; text = "Please check connection of your device"; ObjectID = "5g8-Wo-33J"; */
+"5g8-Wo-33J.text" = "Lütfen cihazınızın internet bağlantısını kontrol ediniz";
+
+/* Class = "UILabel"; text = "Imdb Id Number"; ObjectID = "6Ob-Pu-RjF"; */
+"6Ob-Pu-RjF.text" = "Imdb Id Number";
+
+/* Class = "UIButton"; normalTitle = " Back"; ObjectID = "7Fu-c9-eEH"; */
+"7Fu-c9-eEH.normalTitle" = " Geri";
+
+/* Class = "UILabel"; text = "year & duration"; ObjectID = "7tC-Tx-Qbz"; */
+"7tC-Tx-Qbz.text" = "year & duration";
+
+/* Class = "UILabel"; text = "plot text"; ObjectID = "HP1-A3-5j6"; */
+"HP1-A3-5j6.text" = "plot text";
+
+/* Class = "UILabel"; text = "genre"; ObjectID = "LlU-gz-B7A"; */
+"LlU-gz-B7A.text" = "genre";
+
+/* Class = "UILabel"; text = "Movie Title"; ObjectID = "aO1-7I-Ddv"; */
+"aO1-7I-Ddv.text" = "Movie Title";
+
+/* Class = "UILabel"; text = "remote config param"; ObjectID = "clB-Gk-cmj"; */
+"clB-Gk-cmj.text" = "remote config param";
+
+/* Class = "UILabel"; text = "Moview"; ObjectID = "nON-R2-Dqj"; */
+"nON-R2-Dqj.text" = "Moview";
+
+/* Class = "UILabel"; text = "0.0"; ObjectID = "rqX-5n-767"; */
+"rqX-5n-767.text" = "0.0";
+
+/* Class = "UILabel"; text = "Plot:"; ObjectID = "vYH-si-tks"; */
+"vYH-si-tks.text" = "Hikaye:";
+
+/* Class = "UIButton"; normalTitle = "Search"; ObjectID = "vjo-j8-nvh"; */
+"vjo-j8-nvh.normalTitle" = "Ara";
+
+/* Class = "UILabel"; text = "IMDB Score:"; ObjectID = "yX7-if-OKG"; */
+"yX7-if-OKG.text" = "IMDB Puanı:";
