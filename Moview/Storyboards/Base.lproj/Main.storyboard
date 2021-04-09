@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="hjq-Un-X2q">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
@@ -47,23 +47,23 @@
                             <view contentMode="scaleToFill" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" translatesAutoresizingMaskIntoConstraints="NO" id="stv-iy-ci9">
                                 <rect key="frame" x="0.0" y="44" width="414" height="409"/>
                                 <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Moview" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="39A-ki-cIP">
+                                        <rect key="frame" x="153" y="171.5" width="108.5" height="36"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
+                                        <color key="textColor" systemColor="systemBlueColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="AppLogo" translatesAutoresizingMaskIntoConstraints="NO" id="RYY-Bi-nUV">
-                                        <rect key="frame" x="147" y="144.5" width="120" height="120"/>
+                                        <rect key="frame" x="147" y="47.5" width="120" height="120"/>
                                         <color key="tintColor" red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="120" id="P7Y-ac-0XP"/>
                                             <constraint firstAttribute="height" constant="120" id="Sf0-0E-xMB"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Moview" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="39A-ki-cIP">
-                                        <rect key="frame" x="153" y="268.5" width="108.5" height="36"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
-                                        <color key="textColor" systemColor="systemBlueColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="remote config param" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="clB-Gk-cmj">
-                                        <rect key="frame" x="12" y="328.5" width="390" height="24"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                        <rect key="frame" x="12" y="373" width="390" height="36"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
                                         <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -72,11 +72,11 @@
                                 <constraints>
                                     <constraint firstItem="39A-ki-cIP" firstAttribute="top" secondItem="RYY-Bi-nUV" secondAttribute="bottom" constant="4" id="2KU-A9-MrA"/>
                                     <constraint firstAttribute="trailing" secondItem="clB-Gk-cmj" secondAttribute="trailing" constant="12" id="4ef-jT-0CT"/>
-                                    <constraint firstItem="RYY-Bi-nUV" firstAttribute="centerY" secondItem="stv-iy-ci9" secondAttribute="centerY" id="7Kc-1k-XMQ"/>
-                                    <constraint firstItem="RYY-Bi-nUV" firstAttribute="centerX" secondItem="stv-iy-ci9" secondAttribute="centerX" id="A5P-Sr-Nbp"/>
+                                    <constraint firstAttribute="bottom" secondItem="clB-Gk-cmj" secondAttribute="bottom" id="IIJ-RY-jHL"/>
+                                    <constraint firstItem="RYY-Bi-nUV" firstAttribute="centerX" secondItem="stv-iy-ci9" secondAttribute="centerX" id="IpI-4s-Eo9"/>
                                     <constraint firstItem="39A-ki-cIP" firstAttribute="centerX" secondItem="RYY-Bi-nUV" secondAttribute="centerX" id="KEZ-ke-bIl"/>
+                                    <constraint firstItem="39A-ki-cIP" firstAttribute="centerY" secondItem="stv-iy-ci9" secondAttribute="centerY" constant="-15" id="M8I-vN-47t"/>
                                     <constraint firstItem="clB-Gk-cmj" firstAttribute="leading" secondItem="stv-iy-ci9" secondAttribute="leading" constant="12" id="YVE-b3-AFk"/>
-                                    <constraint firstItem="clB-Gk-cmj" firstAttribute="top" secondItem="39A-ki-cIP" secondAttribute="bottom" constant="24" id="mDE-jB-9vJ"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -95,9 +95,10 @@
                     </view>
                     <navigationItem key="navigationItem" id="eMF-3O-Bw9"/>
                     <connections>
+                        <outlet property="appLogoImage" destination="RYY-Bi-nUV" id="CD1-zF-5Zc"/>
                         <outlet property="connectionErrorBaseView" destination="r9H-E2-j38" id="hP8-aW-ch2"/>
                         <outlet property="remoteConfigParamLabel" destination="clB-Gk-cmj" id="6vv-gz-OC1"/>
-                        <segue destination="Roz-FF-NgD" kind="show" identifier="SplashScreenToMainScreen" id="11e-fF-TZg"/>
+                        <segue destination="Roz-FF-NgD" kind="presentation" identifier="SplashScreenToMainScreen" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="11e-fF-TZg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -107,7 +108,7 @@
         <!--Main Screen View Controller-->
         <scene sceneID="YFo-Pr-cBg">
             <objects>
-                <viewController modalPresentationStyle="fullScreen" id="Roz-FF-NgD" customClass="MainScreenViewController" customModule="Moview" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalTransitionStyle="crossDissolve" modalPresentationStyle="fullScreen" id="Roz-FF-NgD" customClass="MainScreenViewController" customModule="Moview" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="yx9-N7-83Y">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -427,23 +428,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0ab-Tp-oBa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2750.7246376811595" y="137.94642857142856"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="Ym0-LJ-La2">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="hjq-Un-X2q" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="3tF-ha-0hU">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="gZb-d3-xFr"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="6Qi-i3-Bba" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1048" y="-623"/>
         </scene>
     </scenes>
     <resources>

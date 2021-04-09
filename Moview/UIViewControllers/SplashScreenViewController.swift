@@ -13,9 +13,13 @@ class SplashScreenViewController: UtilitiesViewController
 {
     @IBOutlet var connectionErrorBaseView: UIView!
     @IBOutlet var remoteConfigParamLabel: UILabel!
+    @IBOutlet var appLogoImage: UIImageView!
+    
     
     private let SEGUE_IDENTIFIER_TO_MAIN_SCREEN = "SplashScreenToMainScreen"
     private let FIREBASE_REMOTE_CONFIG_PARAM_NAME = "loodos_splash_text"
+    private let SPLASH_ANIMATION_DURATION = 3.0 //seconds
+    
     
     var remoteConfig = RemoteConfig.remoteConfig()
     
@@ -39,7 +43,7 @@ class SplashScreenViewController: UtilitiesViewController
         checkConnectivityAndProceedToMainScreen()
     }
     
-    func checkConnectivityAndProceedToMainScreen()
+    private func checkConnectivityAndProceedToMainScreen()
     {
         //Fetch Firebase Remote Values if Connected to Internet
         if RequestManager.isConnectedToInternet
@@ -57,7 +61,7 @@ class SplashScreenViewController: UtilitiesViewController
         }
     }
     
-    func fetchRemoteValues()
+    private func fetchRemoteValues()
     {
         let defaultValue = [FIREBASE_REMOTE_CONFIG_PARAM_NAME: "..." as NSObject]
         remoteConfig.setDefaults(defaultValue)
@@ -86,13 +90,52 @@ class SplashScreenViewController: UtilitiesViewController
         }
     }
     
-    func showAppStartingAnimationAndPassToNextScreen()
+    private func showAppStartingAnimationAndPassToNextScreen()
     {
         //End Listening Application Become Active Events
         NotificationCenter.default.removeObserver(self, name: UIScene.willEnterForegroundNotification, object: nil)
         
-        //Proceed to Main Screen
-        performSegue(withIdentifier: SEGUE_IDENTIFIER_TO_MAIN_SCREEN, sender: self)
+        startSplashAnimationToPassNextScreen()
+    }
+    
+    private func startSplashAnimationToPassNextScreen()
+    {
+        let circleImage = UIImageView(image: UIImage(systemName: "circle.fill"))
+        circleImage.alpha = 0
+        circleImage.frame = appLogoImage.frame
+        
+        self.view.addSubview(circleImage)
+        
+        UIView.animateKeyframes(withDuration: SPLASH_ANIMATION_DURATION, delay: 0, options: .calculationModeLinear)
+        {
+            //Logo Expands
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.7) {
+                self.appLogoImage.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
+            }
+            
+            //Logo Pops
+            UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.1) {
+                self.appLogoImage.transform = CGAffineTransform(scaleX: 1, y: 1)
+            }
+            
+            //Circle Becomes Visible
+            UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.01) {
+                circleImage.alpha = 1
+            }
+            
+            //Circle Wave Disappears
+            UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.3) {
+                circleImage.alpha = 0
+                circleImage.transform = CGAffineTransform(translationX: self.view.center.x, y: self.view.center.y)
+                circleImage.transform = CGAffineTransform(scaleX: 20, y: 20)
+            }
+            
+        } completion: {
+            (complete) in
+            
+            //Proceed to Main Screen
+            self.performSegue(withIdentifier: self.SEGUE_IDENTIFIER_TO_MAIN_SCREEN, sender: self)
+        }
     }
 
     

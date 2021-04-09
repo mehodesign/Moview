@@ -22,8 +22,8 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     @IBOutlet var searchBarContainerHeightConstraint: NSLayoutConstraint!
     
-    private var moviePreviewView: MoviePreviewView?
-    private var previousSearchResultsView: PreviousSearchResultsView?
+    private lazy var moviePreviewView: MoviePreviewView = (Bundle.main.loadNibNamed("MoviePreviewView", owner: self, options: nil)?.first as! MoviePreviewView)
+    private lazy var previousSearchResultsView: PreviousSearchResultsView = (Bundle.main.loadNibNamed("PreviousSearchResultsView", owner: self, options: nil)?.first as! PreviousSearchResultsView)
     private var movieContentToDisplayDetails: MovieContent?
     private var isDisplayingSearchResult: Bool = false
     
@@ -34,6 +34,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         
         NotificationCenter.default.addObserver(self, selector: #selector(imageDownloadCompleted), name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
         
+        moviePreviewView.delegate = self
+        previousSearchResultsView.delegate = self
+        
         searchButton.isEnabled = false
     }
     
@@ -42,14 +45,14 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
     }
     
-    func searchMovieForTitle(title: String)
+    private func searchMovieForTitle(title: String)
     {
         //Show Activity Indicator to Notify User
         showProgressView()
         
         //Search Movie for Title
         MovieContentManager.searchForMovieTitle(searchString: title) {
-            (success, movieContent) in
+            (success, movieContent, error) in
             
             self.hideProgressView()
             
@@ -61,19 +64,19 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
             else
             {
                 let title = NSLocalizedString("Movie Not Found", comment: "")
-                let message = NSLocalizedString("Please search another movie title", comment: "")
+                let message = error ?? NSLocalizedString("Please search another movie title", comment: "")
                 self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
             }
         }
     }
     
-    func displaySearchResult(movieDetails: MovieContent)
+    private func displaySearchResult(movieDetails: MovieContent)
     {
         //Add Movie Preview View into Search Base View
         addMoviePreviewViewToScreen()
         
         //Set Movie Content of Movie Preview View
-        moviePreviewView!.setMoviePreviewContent(movieContent: movieDetails)
+        moviePreviewView.setMoviePreviewContent(movieContent: movieDetails)
         
         if !isDisplayingSearchResult
         {
@@ -88,44 +91,35 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         }
     }
     
-    func addMoviePreviewViewToScreen()
+    private func addMoviePreviewViewToScreen()
     {
-        if moviePreviewView == nil
+        if moviePreviewView.superview == nil
         {
-            moviePreviewView = (Bundle.main.loadNibNamed("MoviePreviewView", owner: self, options: nil)?.first as! MoviePreviewView)
-            moviePreviewView!.delegate = self
-            
-            movieDetailsContainer.addSubview(moviePreviewView!)
-            
-            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: moviePreviewView!))
+            movieDetailsContainer.addSubview(moviePreviewView)
+            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: moviePreviewView))
             movieDetailsContainer.superview?.layoutIfNeeded()
         }
         
-        moviePreviewView?.isHidden = false
-        previousSearchResultsView?.isHidden = true
+        moviePreviewView.isHidden = false
+        previousSearchResultsView.isHidden = true
     }
     
-    func addPreviousSearchResultsViewToScreen()
+    private func addPreviousSearchResultsViewToScreen()
     {
-        if previousSearchResultsView == nil
+        if previousSearchResultsView.superview == nil
         {
-            previousSearchResultsView = (Bundle.main.loadNibNamed("PreviousSearchResultsView", owner: self, options: nil)?.first as! PreviousSearchResultsView)
-            previousSearchResultsView!.delegate = self
-            
-            movieDetailsContainer.addSubview(previousSearchResultsView!)
-            
-            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: previousSearchResultsView!))
-            previousSearchResultsView?.superview?.layoutIfNeeded()
+            movieDetailsContainer.addSubview(previousSearchResultsView)
+            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: previousSearchResultsView))
+            previousSearchResultsView.superview?.layoutIfNeeded()
         }
         
         //Refresh Previous Movie Searches Before Showing The View
-        previousSearchResultsView?.setPreviousSearchResults(movieContents: MovieContentManager.getPreviousSearchResults())
-        
-        previousSearchResultsView?.isHidden = false
-        moviePreviewView?.isHidden = true
+        previousSearchResultsView.setPreviousSearchResults(movieContents: MovieContentManager.getPreviousSearchResults())
+        previousSearchResultsView.isHidden = false
+        moviePreviewView.isHidden = true
     }
     
-    func getMovieDetailsConstraintsFor(view: UIView) -> [NSLayoutConstraint]
+    private func getMovieDetailsConstraintsFor(view: UIView) -> [NSLayoutConstraint]
     {
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -135,6 +129,11 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         let heightConstraint = NSLayoutConstraint(item: view, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: MOVIE_PREVIEW_FRAME_HEIGHT)
         
         return [topConstraint, leadingConstraint, trailingConstraint, heightConstraint]
+    }
+    
+    private func isValidSearchString(searchString: String?) -> Bool
+    {
+        return ((searchString?.trimmingCharacters(in: .whitespacesAndNewlines)) != nil)
     }
     
 
@@ -157,9 +156,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     {
         if let movieDetails = notification.object as? MovieContent
         {
-            if movieDetails.posterImage != nil && moviePreviewView?.getMovieContentId() == movieDetails.imdbId
+            if movieDetails.posterImage != nil && moviePreviewView.getMovieContentId() == movieDetails.imdbId
             {
-                moviePreviewView?.setPosterImage(image: movieDetails.posterImage!)
+                moviePreviewView.setPosterImage(image: movieDetails.posterImage!)
             }
         }
     }
@@ -170,9 +169,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     @IBAction func searchButtonPressAction(_ sender: Any)
     {
         //Checking Search String is Valid
-        if let searchString = searchTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if isValidSearchString(searchString: searchTextField.text)
         {
-            searchMovieForTitle(title: searchString)
+            searchMovieForTitle(title: searchTextField.text!)
             searchTextField.resignFirstResponder()
         }
         //Show Error Alert
@@ -186,7 +185,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     @IBAction func searchTextFieldEditingChangedAction(_ textField: UITextField)
     {
-        searchButton.isEnabled = ((searchTextField.text?.count ?? 0) > 0)
+        searchButton.isEnabled = isValidSearchString(searchString: searchTextField.text)
     }
     
     

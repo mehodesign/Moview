@@ -53,6 +53,7 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="rh0-XV-5PF" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="4s9-xi-Bin"/>
                 <constraint firstItem="bLg-NC-0k0" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="99C-gl-ks4"/>

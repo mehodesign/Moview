@@ -14,7 +14,7 @@ class MovieContentManager: NSObject
     private static let selfInstance = MovieContentManager.init()
     
     
-    class func searchForMovieTitle(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContent?) -> Void)
+    class func searchForMovieTitle(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContent?, _ error: String?) -> Void)
     {
         //Search for a Movie Title
         if searchString.count > 0
@@ -46,13 +46,13 @@ class MovieContentManager: NSObject
                 }
                 
                 DispatchQueue.main.async {
-                    completion(success, movieContent)
+                    completion(success, movieContent, movieSearchresult?.errorMessage)
                 }
             }
         }
         else
         {
-            completion(false, nil)
+            completion(false, nil, NSLocalizedString("Please enter a valid movie title to search.", comment: ""))
         }
     }
     

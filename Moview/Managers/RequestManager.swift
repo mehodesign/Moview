@@ -17,6 +17,14 @@ class RequestManager: NSObject
     private static let API_KEY = "52a3219f"
     
     
+    //MARK: - Check Internet Reachability
+    
+    class var isConnectedToInternet:Bool
+    {
+        return NetworkReachabilityManager()!.isReachable
+    }
+    
+    
     private class func requestWith(url: String, method : HTTPMethod, parameters: Parameters? = nil) -> DataRequest
     {
         var headers = Alamofire.SessionManager.defaultHTTPHeaders
@@ -60,16 +68,7 @@ class RequestManager: NSObject
             completion(success, image)
         }
     }
-    
-    
-    //MARK: - Check Internet Reachability
-    
-    class var isConnectedToInternet:Bool
-    {
-        return NetworkReachabilityManager()!.isReachable
-    }
 }
-
 
 
 
@@ -102,6 +101,5 @@ struct MovieSearchResult: Mappable
         imdbId <- map["imdbID"]
         imdbRating <- map["imdbRating"]
         posterUrlPath <- map["Poster"]
-        
     }
 }

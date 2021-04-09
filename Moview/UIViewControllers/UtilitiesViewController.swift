@@ -9,13 +9,17 @@ import UIKit
 
 class UtilitiesViewController: UIViewController
 {
-    private var progressView: UIView?
+    private lazy var progressView: UIView = (Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as! UIView)
     
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
 
+        progressView.frame = CGRect(x: 0,
+                                     y: 0,
+                                     width: self.view.frame.size.width,
+                                     height: self.view.frame.size.height)
     }
     
     
@@ -23,23 +27,17 @@ class UtilitiesViewController: UIViewController
     
     func showProgressView()
     {
-        if progressView == nil
+        if progressView.superview == nil
         {
-            progressView = (Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as! UIView)
-            progressView!.frame = CGRect(x: 0,
-                                         y: 0,
-                                         width: self.view.frame.size.width,
-                                         height: self.view.frame.size.height)
-            
-            self.view.addSubview(progressView!)
+            self.view.addSubview(progressView)
         }
         
-        progressView?.isHidden = false
+        progressView.isHidden = false
     }
     
     func hideProgressView()
     {
-        progressView?.isHidden = true
+        progressView.isHidden = true
     }
     
     
@@ -55,6 +53,4 @@ class UtilitiesViewController: UIViewController
         
         self.present(alertController, animated: true, completion: nil)
     }
-    
-
 }
