@@ -19,7 +19,7 @@ class MovieDetailsViewController: UIViewController
     @IBOutlet var imdbIdLabel: UILabel!
     @IBOutlet var plotTextLabel: UILabel!
     
-    private var movieDetails: MovieContent?
+    private var movieDetailsContainer: MovieContentContainer?
 
     
     override func viewDidLoad()
@@ -41,34 +41,28 @@ class MovieDetailsViewController: UIViewController
         updateMovieDetails()
     }
     
-    public func setMovieDetails(movieContent: MovieContent)
+    public func setMovieDetails(movieContentContainer: MovieContentContainer)
     {
-        movieDetails = movieContent
+        movieDetailsContainer = movieContentContainer
     }
     
     private func updateMovieDetails()
     {
-        titleLabel.text = movieDetails?.movieTitle ?? NSLocalizedString("No title", comment: "")
-        genreLabel.text = movieDetails?.genre ?? NSLocalizedString("No title", comment: "")
-        imdbScoreLabel.text = movieDetails?.imdbRating ?? NSLocalizedString("Not Rated", comment: "")
+        titleLabel.text = movieDetailsContainer?.movieContent.movieTitle
+        genreLabel.text = movieDetailsContainer?.movieContent.genre
+        imdbScoreLabel.text = movieDetailsContainer?.movieContent.imdbRating
         
-        let yearString = movieDetails?.yearOfRelease ?? NSLocalizedString("Unknown", comment: "")
-        let durationString = movieDetails?.lengthMinutes ?? NSLocalizedString("Unknown", comment: "")
-        yearAndDurationLabel.text = (NSLocalizedString("Unknown", comment: "") +
-                                        ": " +
-                                        yearString + ", " +
-                                        NSLocalizedString("Duration", comment: "") +
-                                        ": " +
-                                        durationString)
+        let yearText = NSLocalizedString("Year", comment: "") + ": " + (movieDetailsContainer?.movieContent.yearOfRelease ?? NSLocalizedString("Unknown", comment: ""))
+        let durationText = NSLocalizedString("Duration", comment: "") + ": " + (movieDetailsContainer?.movieContent.lengthMinutes ?? NSLocalizedString("Unknown", comment: ""))
+        yearAndDurationLabel.text = yearText + ", " + durationText
         
-        let imdbIdString = movieDetails?.imdbId ?? NSLocalizedString("Unknown", comment: "")
-        imdbIdLabel.text = ("IMDB ID: " + imdbIdString)
+        imdbIdLabel.text = ("IMDB ID: " + (movieDetailsContainer?.movieContent.imdbId ?? NSLocalizedString("Not Rated", comment: "")))
         
-        plotTextLabel.text = movieDetails?.longPlot ?? NSLocalizedString("Unawailable", comment: "")
+        plotTextLabel.text = movieDetailsContainer?.movieContent.shortPlot
         
-        if movieDetails?.posterImage != nil
+        if movieDetailsContainer?.posterImage != nil
         {
-            setPosterImage(image: movieDetails!.posterImage!)
+            setPosterImage(image: movieDetailsContainer!.posterImage!)
         }
     }
     
@@ -79,12 +73,15 @@ class MovieDetailsViewController: UIViewController
     
     private func logCurrentMovieDetails()
     {
-        FirebaseAnalytics.Analytics.logEvent(AnalyticsEventViewSearchResults, parameters: [
-            AnalyticsParameterItemName: movieDetails?.movieTitle ?? NSLocalizedString("No title", comment: ""),
-            AnalyticsParameterItemID: movieDetails?.imdbId ?? NSLocalizedString("Not Rated", comment: ""),
-            AnalyticsParameterContentType: "MovieDetails",
-            "year_of_release": movieDetails?.yearOfRelease ?? NSLocalizedString("Unknown", comment: "")
-        ])
+        if movieDetailsContainer != nil
+        {
+            FirebaseAnalytics.Analytics.logEvent(AnalyticsEventViewSearchResults, parameters: [
+                AnalyticsParameterItemName: movieDetailsContainer!.movieContent.movieTitle,
+                AnalyticsParameterItemID: movieDetailsContainer!.movieContent.imdbId,
+                AnalyticsParameterContentType: "MovieDetails",
+                "year_of_release": movieDetailsContainer!.movieContent.yearOfRelease
+            ])
+        }
     }
     
     
@@ -92,11 +89,11 @@ class MovieDetailsViewController: UIViewController
     
     @objc func imageDownloadCompleted(notification: Notification)
     {
-        if let movieContent = notification.object as? MovieContent
+        if let movieContentContainer = notification.object as? MovieContentContainer
         {
-            if movieContent.posterImage != nil && movieContent.imdbId == movieDetails?.imdbId
+            if movieContentContainer.posterImage != nil && movieContentContainer.movieContent.imdbId == movieDetailsContainer?.movieContent.imdbId
             {
-                setPosterImage(image: movieContent.posterImage!)
+                setPosterImage(image: movieContentContainer.posterImage!)
             }
         }
     }

@@ -10,7 +10,7 @@ import UIKit
 
 protocol PreviousSearchResultsViewDelegate
 {
-    func userDidSelectSearchResult(selectedMovieContent: MovieContent)
+    func userDidSelectSearchResult(selectedMovieContentContainer: MovieContentContainer)
 }
 
 class PreviousSearchResultsView: UIView, UITableViewDelegate, UITableViewDataSource
@@ -19,7 +19,7 @@ class PreviousSearchResultsView: UIView, UITableViewDelegate, UITableViewDataSou
     
     private let PREVIOUS_SEARCH_RESULT_CELL_IDENTIFIER = "PreviousSearchResultCellIdentifier"
     
-    private var previousSearchResults: [MovieContent] = []
+    private var previousSearchResults: [MovieContentContainer] = []
     
     public var delegate: PreviousSearchResultsViewDelegate?
 
@@ -29,7 +29,7 @@ class PreviousSearchResultsView: UIView, UITableViewDelegate, UITableViewDataSou
         super.awakeFromNib()
     }
     
-    public func setPreviousSearchResults(movieContents: [MovieContent]?)
+    public func setPreviousSearchResults(movieContents: [MovieContentContainer]?)
     {
         if movieContents != nil
         {
@@ -61,7 +61,7 @@ class PreviousSearchResultsView: UIView, UITableViewDelegate, UITableViewDataSou
         }
         
         let searchResult = previousSearchResults[indexPath.row]
-        previousSearchresultCell!.setPreviousSearch(movieContent: searchResult)
+        previousSearchresultCell!.setPreviousSearch(movieContentContainer: searchResult)
         
         return previousSearchresultCell!
     }
@@ -71,7 +71,7 @@ class PreviousSearchResultsView: UIView, UITableViewDelegate, UITableViewDataSou
         if delegate != nil
         {
             let searchResult = previousSearchResults[indexPath.row]
-            delegate?.userDidSelectSearchResult(selectedMovieContent: searchResult)
+            delegate?.userDidSelectSearchResult(selectedMovieContentContainer: searchResult)
         }
     }
 

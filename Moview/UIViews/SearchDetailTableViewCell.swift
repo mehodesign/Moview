@@ -15,7 +15,7 @@ class SearchDetailTableViewCell: UITableViewCell
     @IBOutlet var moviewPreviewImage: UIImageView!
     
     
-    private var currentMovieContent: MovieContent?
+    private var currentMovieContentContainer: MovieContentContainer?
     
     override func awakeFromNib()
     {
@@ -28,30 +28,24 @@ class SearchDetailTableViewCell: UITableViewCell
         
     }
     
-    func setPreviousSearch(movieContent: MovieContent)
+    func setPreviousSearch(movieContentContainer: MovieContentContainer)
     {
-        currentMovieContent = movieContent
+        currentMovieContentContainer = movieContentContainer
         
         updateCellDetails()
     }
     
     private func updateCellDetails()
     {
-        movieTitleLabel.text = currentMovieContent?.movieTitle ?? NSLocalizedString("No title", comment: "")
+        movieTitleLabel.text = currentMovieContentContainer?.movieContent.movieTitle
         
-        let yearString = currentMovieContent?.yearOfRelease ?? NSLocalizedString("Unknown", comment: "")
-        let imdbScoreString = currentMovieContent?.imdbRating ?? NSLocalizedString("Not Rated", comment: "")
-        movieDetailsLabel.text = (NSLocalizedString("Year", comment: "") +
-                                    ": " +
-                                    yearString +
-                                    ", " +
-                                    NSLocalizedString("IMDB Score", comment: "") +
-                                    ": " +
-                                    imdbScoreString)
+        let yearString = NSLocalizedString("Year", comment: "") + ": " + (currentMovieContentContainer?.movieContent.yearOfRelease ?? NSLocalizedString("Unknown", comment: ""))
+        let imdbScoreString = NSLocalizedString("IMDB Score", comment: "") + ": " + (currentMovieContentContainer?.movieContent.imdbRating ?? NSLocalizedString("Unknown", comment: ""))
+        movieDetailsLabel.text = (yearString + ", " + imdbScoreString)
         
-        if currentMovieContent?.posterImage != nil
+        if currentMovieContentContainer?.posterImage != nil
         {
-            moviewPreviewImage.image = currentMovieContent!.posterImage
+            moviewPreviewImage.image = currentMovieContentContainer!.posterImage
         }
     }
 }

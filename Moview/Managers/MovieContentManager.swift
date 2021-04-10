@@ -9,12 +9,12 @@ import UIKit
 
 class MovieContentManager: NSObject
 {
-    private var previousSearchResults: [MovieContent] = []
+    private var previousSearchResults: [MovieContentContainer] = []
     
     private static let selfInstance = MovieContentManager.init()
     
     
-    class func searchForMovieTitle(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContent?, _ error: String?) -> Void)
+    class func searchForMovieTitle(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContentContainer?, _ error: String?) -> Void)
     {
         //Search for a Movie Title
         if searchString.count > 0
@@ -22,31 +22,32 @@ class MovieContentManager: NSObject
             RequestManager.searchMovieFor(name: searchString) { [self]
                 (success, movieSearchresult) in
                 
-                var movieContent: MovieContent? = nil
+                var movieContentContainer: MovieContentContainer? = nil
                 
                 if success
                 {
-                    movieContent = MovieContent(title: movieSearchresult?.title,
-                                                 year: movieSearchresult?.year,
-                                                 genre: movieSearchresult?.genre,
-                                                 duration: movieSearchresult?.duration,
-                                                 longPlot: movieSearchresult?.plot,
-                                                 shortPlot: movieSearchresult?.plot,
-                                                 id: movieSearchresult?.imdbId,
-                                                 rating: movieSearchresult?.imdbRating)
+                    let movieContent = MovieContent(title: movieSearchresult?.title,
+                                                    year: movieSearchresult?.year,
+                                                    genre: movieSearchresult?.genre,
+                                                    duration: movieSearchresult?.duration,
+                                                    plot: movieSearchresult?.plot,
+                                                    id: movieSearchresult?.imdbId,
+                                                    rating: movieSearchresult?.imdbRating)
+                    
+                    movieContentContainer = MovieContentContainer(movie: movieContent, poster: nil)
                     
                     //Store Search Result to Be Able to List Them Later
-                    MovieContentManager.selfInstance.previousSearchResults.append(movieContent!)
+                    MovieContentManager.selfInstance.previousSearchResults.append(movieContentContainer!)
                     
                     //Download Movie Poster Image
                     if let imageUrl = movieSearchresult?.posterUrlPath
                     {
-                        downloadPosterImageFor(path: imageUrl, movieContent: movieContent!)
+                        downloadPosterImageFor(path: imageUrl, movieContentContainer: movieContentContainer!)
                     }
                 }
                 
                 DispatchQueue.main.async {
-                    completion(success, movieContent, movieSearchresult?.errorMessage)
+                    completion(success, movieContentContainer, movieSearchresult?.errorMessage)
                 }
             }
         }
@@ -56,56 +57,63 @@ class MovieContentManager: NSObject
         }
     }
     
-    private class func downloadPosterImageFor(path: String, movieContent: MovieContent)
+    private class func downloadPosterImageFor(path: String, movieContentContainer: MovieContentContainer)
     {
         //Download Poster Image
         RequestManager.getImageFromURL(path: path) {
             (success, image) in
             
+            movieContentContainer.posterImage = image
+            
             //Notify UI Image Download Complete
             if success && image != nil
             {
-                movieContent.setImage(image: image!)
-                
                 //Post Notification to Notify UI.
                 //I Prefer Notifications Instead of Delegation Here, Because There Can Be Many UI Elements Listening For Image Download Notifications.
-                NotificationCenter.default.post(Notification(name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: movieContent))
+                NotificationCenter.default.post(Notification(name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: movieContentContainer))
             }
         }
     }
     
-    class func getPreviousSearchResults() -> [MovieContent]
+    class func getPreviousSearchResults() -> [MovieContentContainer]
     {
         return MovieContentManager.selfInstance.previousSearchResults
     }
 }
 
-class MovieContent: NSObject
+
+//MARK: - Movie Content Container Object & Movie Content
+
+class MovieContentContainer: NSObject
 {
-    let movieTitle:String?
-    let yearOfRelease:String?
-    let lengthMinutes: String?
-    let genre: String?
-    let shortPlot: String?
-    let longPlot:String?
-    let imdbId: String?
-    let imdbRating: String?
+    let movieContent: MovieContent
     var posterImage: UIImage?
     
-    init(title: String?, year: String?, genre: String?, duration:String?, longPlot:String?, shortPlot:String?, id: String?, rating: String?)
+    init(movie: MovieContent, poster: UIImage?)
     {
-        self.movieTitle = title
-        self.yearOfRelease = year
-        self.genre = genre
-        self.lengthMinutes = duration
-        self.shortPlot = shortPlot
-        self.longPlot = longPlot
-        self.imdbId = id
-        self.imdbRating = rating
+        movieContent = movie
+        posterImage = poster
     }
+}
+
+struct MovieContent
+{
+    let movieTitle:String
+    let yearOfRelease:String
+    let lengthMinutes: String
+    let genre: String
+    let shortPlot: String
+    let imdbId: String
+    let imdbRating: String
     
-    func setImage(image: UIImage)
+    init(title: String?, year: String?, genre: String?, duration:String?, plot:String?, id: String?, rating: String?)
     {
-        posterImage = image
+        self.movieTitle = (title == "N/A" || title == nil) ? NSLocalizedString("No title", comment: "") : title!
+        self.yearOfRelease = (year == "N/A" || year == nil) ? NSLocalizedString("Unknown", comment: "") : year!
+        self.genre = (genre == "N/A" || genre == nil) ? NSLocalizedString("Unknown", comment: "") : genre!
+        self.lengthMinutes = (duration == "N/A" || duration == nil) ? NSLocalizedString("Unknown", comment: "") : duration!
+        self.shortPlot = (plot == "N/A" || plot == nil) ? NSLocalizedString("Unawailable", comment: "") : plot!
+        self.imdbId = (id == "N/A" || id == nil) ? NSLocalizedString("Unknown", comment: "") : id!
+        self.imdbRating = (rating == "N/A" || rating == nil) ? NSLocalizedString("Not Rated", comment: "") : rating!
     }
 }

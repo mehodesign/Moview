@@ -15,7 +15,6 @@ class SplashScreenViewController: UtilitiesViewController
     @IBOutlet var remoteConfigParamLabel: UILabel!
     @IBOutlet var appLogoImage: UIImageView!
     
-    
     private let SEGUE_IDENTIFIER_TO_MAIN_SCREEN = "SplashScreenToMainScreen"
     private let FIREBASE_REMOTE_CONFIG_PARAM_NAME = "loodos_splash_text"
     private let SPLASH_ANIMATION_DURATION = 3.0 //seconds

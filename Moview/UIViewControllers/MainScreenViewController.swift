@@ -24,7 +24,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     private lazy var moviePreviewView: MoviePreviewView = (Bundle.main.loadNibNamed("MoviePreviewView", owner: self, options: nil)?.first as! MoviePreviewView)
     private lazy var previousSearchResultsView: PreviousSearchResultsView = (Bundle.main.loadNibNamed("PreviousSearchResultsView", owner: self, options: nil)?.first as! PreviousSearchResultsView)
-    private var movieContentToDisplayDetails: MovieContent?
+    private var movieContentToDisplayDetails: MovieContentContainer?
     private var isDisplayingSearchResult: Bool = false
     
     
@@ -52,13 +52,13 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         
         //Search Movie for Title
         MovieContentManager.searchForMovieTitle(searchString: title) {
-            (success, movieContent, error) in
+            (success, movieContentContainer, error) in
             
             self.hideProgressView()
             
-            if (success && movieContent != nil)
+            if (success && movieContentContainer != nil)
             {
-                self.displaySearchResult(movieDetails: movieContent!)
+                self.displaySearchResult(movieDetails: movieContentContainer!)
             }
             //Show Error Alert
             else
@@ -70,13 +70,13 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         }
     }
     
-    private func displaySearchResult(movieDetails: MovieContent)
+    private func displaySearchResult(movieDetails: MovieContentContainer)
     {
         //Add Movie Preview View into Search Base View
         addMoviePreviewViewToScreen()
         
         //Set Movie Content of Movie Preview View
-        moviePreviewView.setMoviePreviewContent(movieContent: movieDetails)
+        moviePreviewView.setMoviePreviewContent(movieContentContainer: movieDetails)
         
         if !isDisplayingSearchResult
         {
@@ -143,7 +143,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     {
         if let detailsViewController = segue.destination as? MovieDetailsViewController
         {
-            detailsViewController.setMovieDetails(movieContent: movieContentToDisplayDetails!)
+            detailsViewController.setMovieDetails(movieContentContainer: movieContentToDisplayDetails!)
             addPreviousSearchResultsViewToScreen()
             searchTextField.text = ""
         }
@@ -154,9 +154,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     @objc func imageDownloadCompleted(notification: Notification)
     {
-        if let movieDetails = notification.object as? MovieContent
+        if let movieDetails = notification.object as? MovieContentContainer
         {
-            if movieDetails.posterImage != nil && moviePreviewView.getMovieContentId() == movieDetails.imdbId
+            if movieDetails.posterImage != nil && moviePreviewView.getMovieContentId() == movieDetails.movieContent.imdbId
             {
                 moviePreviewView.setPosterImage(image: movieDetails.posterImage!)
             }
@@ -191,9 +191,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     //MARK: - Moview Preview View Delegate Methods
     
-    func userTapToSeeMoFullMoviewDetailsFor(movieContent: MovieContent)
+    func userTapToSeeMoFullMoviewDetailsFor(movieContentContainer: MovieContentContainer)
     {
-        movieContentToDisplayDetails = movieContent
+        movieContentToDisplayDetails = movieContentContainer
         
         performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
     }
@@ -201,9 +201,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     //MARK - Previous Search Results View Delegate Methods
     
-    func userDidSelectSearchResult(selectedMovieContent: MovieContent)
+    func userDidSelectSearchResult(selectedMovieContentContainer: MovieContentContainer)
     {
-        movieContentToDisplayDetails = selectedMovieContent
+        movieContentToDisplayDetails = selectedMovieContentContainer
         
         performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
     }

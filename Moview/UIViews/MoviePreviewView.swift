@@ -10,7 +10,7 @@ import UIKit
 
 protocol MoviePreviewViewDelegate
 {
-    func userTapToSeeMoFullMoviewDetailsFor(movieContent: MovieContent)
+    func userTapToSeeMoFullMoviewDetailsFor(movieContentContainer: MovieContentContainer)
 }
 
 class MoviePreviewView: UIView
@@ -18,23 +18,23 @@ class MoviePreviewView: UIView
     @IBOutlet var previewImage: UIImageView!
     @IBOutlet var movieTitle: UILabel!
     
-    private var currentMovieContent: MovieContent?
+    private var currentMovieContent: MovieContentContainer?
     public var delegate: MoviePreviewViewDelegate?
     
 
-    public func setMoviePreviewContent(movieContent: MovieContent)
+    public func setMoviePreviewContent(movieContentContainer: MovieContentContainer)
     {
-        currentMovieContent = movieContent
+        currentMovieContent = movieContentContainer
         
-        movieTitle.text = movieContent.movieTitle ?? NSLocalizedString("No title", comment: "")
+        movieTitle.text = movieContentContainer.movieContent.movieTitle
         
-        let posterImage = movieContent.posterImage ?? UIImage(systemName: "questionmark.circle")!
+        let posterImage = movieContentContainer.posterImage ?? UIImage(systemName: "questionmark.circle")!
         setPosterImage(image: posterImage)
     }
     
     public func getMovieContentId() -> String?
     {
-        return currentMovieContent?.imdbId
+        return currentMovieContent?.movieContent.imdbId
     }
     
     public func setPosterImage(image: UIImage)
@@ -49,7 +49,7 @@ class MoviePreviewView: UIView
     {
         if delegate != nil && currentMovieContent != nil
         {
-            delegate?.userTapToSeeMoFullMoviewDetailsFor(movieContent: self.currentMovieContent!)
+            delegate?.userTapToSeeMoFullMoviewDetailsFor(movieContentContainer: self.currentMovieContent!)
         }
     }
 }
