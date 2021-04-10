@@ -8,7 +8,7 @@
 import UIKit
 
 
-class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegate, PreviousSearchResultsViewDelegate
+class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegate, PreviousSearchResultsViewDelegate, UITextFieldDelegate
 {
     private let SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN = "MainScreenToDetailsScreen"
     private let ANIMATION_DURATION = 0.25 //seconds
@@ -51,18 +51,28 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         showProgressView()
         
         //Search Movie for Title
-        MovieContentManager.searchForMovieTitle(searchString: title) {
-            (success, movieContentContainer, error) in
+        MovieContentManager.searchMoviesFor(searchString: title) {
+            (success, movieContentList, error) in
             
             self.hideProgressView()
             
-            if (success && movieContentContainer != nil)
+            if (success && movieContentList.count > 0)
             {
-                self.displaySearchResult(movieDetails: movieContentContainer!)
+                self.displaySearchResults()
+                
+                if movieContentList.count == 1
+                {
+                    self.addMoviePreviewViewToScreen(movieContentContainer: movieContentList[0])
+                }
+                else
+                {
+                    self.addSearchResultsViewToScreen(movieContentList)
+                }
             }
             //Show Error Alert
             else
             {
+                self.hideSearchResults()
                 let title = NSLocalizedString("Movie Not Found", comment: "")
                 let message = NSLocalizedString("Please search another movie title", comment: "")
                 self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
@@ -70,14 +80,14 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         }
     }
     
-    private func displaySearchResult(movieDetails: MovieContentContainer)
+    private func hideSearchResults()
     {
-        //Add Movie Preview View into Search Base View
-        addMoviePreviewViewToScreen()
-        
-        //Set Movie Content of Movie Preview View
-        moviePreviewView.setMoviePreviewContent(movieContentContainer: movieDetails)
-        
+        moviePreviewView.isHidden = true
+        previousSearchResultsView.isHidden = true
+    }
+    
+    private func displaySearchResults()
+    {
         if !isDisplayingSearchResult
         {
             //Set New Search Base View Height
@@ -91,7 +101,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         }
     }
     
-    private func addMoviePreviewViewToScreen()
+    private func addMoviePreviewViewToScreen(movieContentContainer: MovieContentContainer)
     {
         if moviePreviewView.superview == nil
         {
@@ -100,11 +110,14 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
             movieDetailsContainer.superview?.layoutIfNeeded()
         }
         
+        //Set Movie Content of Movie Preview View
+        moviePreviewView.setMoviePreviewContent(movieContentContainer: movieContentContainer)
+        
         moviePreviewView.isHidden = false
         previousSearchResultsView.isHidden = true
     }
     
-    private func addPreviousSearchResultsViewToScreen()
+    private func addSearchResultsViewToScreen(_ resultList: [MovieContentContainer])
     {
         if previousSearchResultsView.superview == nil
         {
@@ -114,7 +127,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         }
         
         //Refresh Previous Movie Searches Before Showing The View
-        previousSearchResultsView.setPreviousSearchResults(movieContents: MovieContentManager.getPreviousSearchResults())
+        previousSearchResultsView.setPreviousSearchResults(movieContents: resultList)
         previousSearchResultsView.isHidden = false
         moviePreviewView.isHidden = true
     }
@@ -133,7 +146,23 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     private func isValidSearchString(searchString: String?) -> Bool
     {
-        return ((searchString?.trimmingCharacters(in: .whitespacesAndNewlines)) != nil)
+        return (searchString?.trimmingCharacters(in: .whitespacesAndNewlines).count ?? 0 > 0)
+    }
+    
+    private func passToMovieDetailsScreen(selectedMovieContentContainer: MovieContentContainer)
+    {
+        showProgressView()
+        
+        MovieContentManager.searchForMovieContainer(container: selectedMovieContentContainer) {
+            (succes, movieContainer, error) in
+            
+            //Show Movie Details Anyway
+            DispatchQueue.main.async {
+                self.hideProgressView()
+                self.movieContentToDisplayDetails = movieContainer
+                self.performSegue(withIdentifier: self.SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
+            }
+        }
     }
     
 
@@ -144,7 +173,6 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         if let detailsViewController = segue.destination as? MovieDetailsViewController
         {
             detailsViewController.setMovieDetails(movieContentContainer: movieContentToDisplayDetails!)
-            addPreviousSearchResultsViewToScreen()
             searchTextField.text = ""
         }
     }
@@ -171,7 +199,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         //Checking Search String is Valid
         if isValidSearchString(searchString: searchTextField.text)
         {
-            searchMovieForTitle(title: searchTextField.text!)
+            searchMovieForTitle(title: searchTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines))
             searchTextField.resignFirstResponder()
         }
         //Show Error Alert
@@ -188,14 +216,17 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
         searchButton.isEnabled = isValidSearchString(searchString: searchTextField.text)
     }
     
+    @IBAction func userTapToScreenGestureRecogniserAction(_ sender: Any)
+    {
+        searchTextField.resignFirstResponder()
+    }
+    
     
     //MARK: - Moview Preview View Delegate Methods
     
     func userTapToSeeMoFullMoviewDetailsFor(movieContentContainer: MovieContentContainer)
     {
-        movieContentToDisplayDetails = movieContentContainer
-        
-        performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
+        passToMovieDetailsScreen(selectedMovieContentContainer: movieContentContainer)
     }
     
     
@@ -203,9 +234,21 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     func userDidSelectSearchResult(selectedMovieContentContainer: MovieContentContainer)
     {
-        movieContentToDisplayDetails = selectedMovieContentContainer
-        
-        performSegue(withIdentifier: SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
+        passToMovieDetailsScreen(selectedMovieContentContainer: selectedMovieContentContainer)
     }
     
+    
+    //MARK: - Text field Delegate Methods
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool
+    {
+        searchButtonPressAction(searchButton)
+        return true
+    }
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool
+    {
+        hideSearchResults()
+        return true
+    }
 }

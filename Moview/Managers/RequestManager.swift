@@ -36,16 +36,32 @@ class RequestManager: NSObject
     
     //MARK: - Search Movie By Title
     
-    class func searchMovieFor(name: String, _ completion: @escaping (_ success: Bool, _ result: MovieSearchResult?) -> Void)
+    class func searchMovieFor(id: String, _ completion: @escaping (_ success: Bool, _ result: MovieSearchResult?) -> Void)
     {
         let parameters = [
             "apikey": API_KEY,
-            "t": name
+            "i": id
         ] as [String: AnyObject]
         
         requestWith(url: BASE_API_URL, method: .get, parameters: parameters).responseObject {
             (response: DataResponse<MovieSearchResult>) in
             let success = (response.result.isSuccess && response.value?.response == "True")
+            completion(success, response.value)
+        }
+    }
+    
+    //MARK: - Search Movie By Title
+    
+    class func searchMoviesFor(name: String, _ completion: @escaping (_ success: Bool, _ result: MovieSearchresultList?) -> Void)
+    {
+        let parameters = [
+            "apikey": API_KEY,
+            "s": name
+        ] as [String: AnyObject]
+        
+        requestWith(url: BASE_API_URL, method: .get, parameters: parameters).responseObject {
+            (response: DataResponse<MovieSearchresultList>) in
+            let success = (response.result.isSuccess && (response.value?.movieSearchResults?.count) ?? 0 > 0)
             completion(success, response.value)
         }
     }
@@ -67,6 +83,19 @@ class RequestManager: NSObject
             
             completion(success, image)
         }
+    }
+}
+
+
+struct MovieSearchresultList: Mappable
+{
+    var movieSearchResults: [MovieSearchResult]?
+    
+    init?(map: Map) {}
+    
+    mutating func mapping(map: Map)
+    {
+        movieSearchResults <- map["Search"]
     }
 }
 

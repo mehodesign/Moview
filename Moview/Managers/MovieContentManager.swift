@@ -9,51 +9,74 @@ import UIKit
 
 class MovieContentManager: NSObject
 {
-    private var previousSearchResults: [MovieContentContainer] = []
-    
     private static let selfInstance = MovieContentManager.init()
     
-    
-    class func searchForMovieTitle(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContentContainer?, _ error: String?) -> Void)
+    class func searchForMovieContainer(container: MovieContentContainer, _ completion: @escaping (_ success: Bool, _ movieContent: MovieContentContainer?, _ error: String?) -> Void)
     {
-        //Search for a Movie Title
-        if searchString.count > 0
+        //Search for a Movie ID
+        if  container.movieContent.imdbId.count > 0
         {
-            RequestManager.searchMovieFor(name: searchString) { [self]
+            RequestManager.searchMovieFor(id: container.movieContent.imdbId) { [self]
                 (success, movieSearchresult) in
-                
-                var movieContentContainer: MovieContentContainer? = nil
                 
                 if success
                 {
-                    let movieContent = MovieContent(title: movieSearchresult?.title,
-                                                    year: movieSearchresult?.year,
-                                                    genre: movieSearchresult?.genre,
-                                                    duration: movieSearchresult?.duration,
-                                                    plot: movieSearchresult?.plot,
-                                                    id: movieSearchresult?.imdbId,
-                                                    rating: movieSearchresult?.imdbRating)
-                    
-                    movieContentContainer = MovieContentContainer(movie: movieContent, poster: nil)
-                    
-                    //Store Search Result to Be Able to List Them Later
-                    MovieContentManager.selfInstance.previousSearchResults.append(movieContentContainer!)
+                    container.movieContent = parseResultsToMovieContent(movieSearchresult: movieSearchresult)
                     
                     //Download Movie Poster Image
-                    if let imageUrl = movieSearchresult?.posterUrlPath
+                    if let imageUrl = movieSearchresult?.posterUrlPath, container.posterImage == nil
                     {
-                        downloadPosterImageFor(path: imageUrl, movieContentContainer: movieContentContainer!)
+                        downloadPosterImageFor(path: imageUrl, movieContentContainer: container)
                     }
                 }
                 
                 DispatchQueue.main.async {
-                    completion(success, movieContentContainer, movieSearchresult?.errorMessage)
+                    completion(success, container, movieSearchresult?.errorMessage)
                 }
             }
         }
         else
         {
             completion(false, nil, NSLocalizedString("Please enter a valid movie title to search.", comment: ""))
+        }
+    }
+    
+    class func searchMoviesFor(searchString: String, _ completion: @escaping (_ success: Bool, _ movieContentList: [MovieContentContainer], _ error: String?) -> Void)
+    {
+        //Search for a Movie Title
+        if searchString.count > 0
+        {
+            RequestManager.searchMoviesFor(name: searchString) {
+                (success, resultList) in
+                
+                var contentList: [MovieContentContainer] = []
+                var movieContentContainer: MovieContentContainer?
+                
+                if let movieSearchResults = resultList?.movieSearchResults, success
+                {
+                    for result in movieSearchResults
+                    {
+                        let movieContent = parseResultsToMovieContent(movieSearchresult: result)
+                        movieContentContainer = MovieContentContainer(movie: movieContent, poster: nil)
+                        
+                        //Download Movie Poster Image
+                        if let imageUrl = result.posterUrlPath
+                        {
+                            downloadPosterImageFor(path: imageUrl, movieContentContainer: movieContentContainer!)
+                        }
+                        
+                        contentList.append(movieContentContainer!)
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    completion(success, contentList, nil)
+                }
+            }
+        }
+        else
+        {
+            completion(false, [], NSLocalizedString("Please enter a valid movie title to search.", comment: ""))
         }
     }
     
@@ -75,9 +98,17 @@ class MovieContentManager: NSObject
         }
     }
     
-    class func getPreviousSearchResults() -> [MovieContentContainer]
+    private class func parseResultsToMovieContent(movieSearchresult: MovieSearchResult?) -> MovieContent
     {
-        return MovieContentManager.selfInstance.previousSearchResults
+        let movieContent = MovieContent(title: movieSearchresult?.title,
+                                        year: movieSearchresult?.year,
+                                        genre: movieSearchresult?.genre,
+                                        duration: movieSearchresult?.duration,
+                                        plot: movieSearchresult?.plot,
+                                        id: movieSearchresult?.imdbId,
+                                        rating: movieSearchresult?.imdbRating)
+        
+        return movieContent
     }
 }
 
@@ -86,7 +117,7 @@ class MovieContentManager: NSObject
 
 class MovieContentContainer: NSObject
 {
-    let movieContent: MovieContent
+    var movieContent: MovieContent
     var posterImage: UIImage?
     
     init(movie: MovieContent, poster: UIImage?)

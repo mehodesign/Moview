@@ -20,6 +20,13 @@ class SearchDetailTableViewCell: UITableViewCell
     override func awakeFromNib()
     {
         super.awakeFromNib()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(imageDownloadCompleted), name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
+    }
+    
+    deinit
+    {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool)
@@ -40,12 +47,34 @@ class SearchDetailTableViewCell: UITableViewCell
         movieTitleLabel.text = currentMovieContentContainer?.movieContent.movieTitle
         
         let yearString = NSLocalizedString("Year", comment: "") + ": " + (currentMovieContentContainer?.movieContent.yearOfRelease ?? NSLocalizedString("Unknown", comment: ""))
-        let imdbScoreString = NSLocalizedString("IMDB Score", comment: "") + ": " + (currentMovieContentContainer?.movieContent.imdbRating ?? NSLocalizedString("Unknown", comment: ""))
-        movieDetailsLabel.text = (yearString + ", " + imdbScoreString)
+        movieDetailsLabel.text = yearString
         
-        if currentMovieContentContainer?.posterImage != nil
+        setPosterImage(image: currentMovieContentContainer!.posterImage)
+    }
+    
+    private func setPosterImage(image: UIImage?)
+    {
+        if image != nil
         {
             moviewPreviewImage.image = currentMovieContentContainer!.posterImage
+        }
+        else
+        {
+            moviewPreviewImage.image = UIImage(systemName: "questionmark.circle")!
+        }
+    }
+    
+    
+    //MARK: - Notification Methods
+    
+    @objc func imageDownloadCompleted(notification: Notification)
+    {
+        if let movieDetails = notification.object as? MovieContentContainer
+        {
+            if movieDetails.posterImage != nil && currentMovieContentContainer?.movieContent.imdbId == movieDetails.movieContent.imdbId
+            {
+                setPosterImage(image: currentMovieContentContainer!.posterImage)
+            }
         }
     }
 }
