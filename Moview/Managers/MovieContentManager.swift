@@ -111,9 +111,11 @@ struct MovieContent
         self.movieTitle = (title == "N/A" || title == nil) ? NSLocalizedString("No title", comment: "") : title!
         self.yearOfRelease = (year == "N/A" || year == nil) ? NSLocalizedString("Unknown", comment: "") : year!
         self.genre = (genre == "N/A" || genre == nil) ? NSLocalizedString("Unknown", comment: "") : genre!
-        self.lengthMinutes = (duration == "N/A" || duration == nil) ? NSLocalizedString("Unknown", comment: "") : duration!
         self.shortPlot = (plot == "N/A" || plot == nil) ? NSLocalizedString("Unawailable", comment: "") : plot!
         self.imdbId = (id == "N/A" || id == nil) ? NSLocalizedString("Unknown", comment: "") : id!
         self.imdbRating = (rating == "N/A" || rating == nil) ? NSLocalizedString("Not Rated", comment: "") : rating!
+        
+        let parsedDurationString = (duration == "N/A" || duration == nil) ? NSLocalizedString("Unknown", comment: "") : duration!
+        self.lengthMinutes = parsedDurationString.replacingOccurrences(of: "min", with: NSLocalizedString("minutes", comment: ""))
     }
 }

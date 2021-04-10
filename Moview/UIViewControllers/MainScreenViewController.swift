@@ -64,7 +64,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
             else
             {
                 let title = NSLocalizedString("Movie Not Found", comment: "")
-                let message = error ?? NSLocalizedString("Please search another movie title", comment: "")
+                let message = NSLocalizedString("Please search another movie title", comment: "")
                 self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
             }
         }

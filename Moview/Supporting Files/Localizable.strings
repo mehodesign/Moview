@@ -24,3 +24,4 @@
 "Your device is not connected to internet. You need internet connection to be able to use this app." = "Cihazınızın internet bağlantısı yok. Bu uygulamayı kullanmak için internet bağlantısına ihtiyaç vardır.";
 "Remote Config Error" = "Veri Çekme Hatası";
 "Firebase Remote Config fetch failed due to an error." = "Firebase uzaktan veri çekme işlemi bir hata sebebiyle başarısız oldu.";
+"minutes" = "dakika";
