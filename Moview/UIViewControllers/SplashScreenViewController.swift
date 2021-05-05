@@ -6,22 +6,23 @@
 //
 
 import UIKit
-import FirebaseRemoteConfig
+import RxCocoa
+import RxSwift
 
 
-class SplashScreenViewController: UtilitiesViewController
+class SplashScreenViewController: UtilitiesViewController, SplashScreen
 {
+    
     @IBOutlet var connectionErrorBaseView: UIView!
     @IBOutlet var remoteConfigParamLabel: UILabel!
     @IBOutlet var appLogoImage: UIImageView!
     
     private let SEGUE_IDENTIFIER_TO_MAIN_SCREEN = "SplashScreenToMainScreen"
-    private let FIREBASE_REMOTE_CONFIG_PARAM_NAME = "loodos_splash_text"
     private let SPLASH_ANIMATION_DURATION = 3.0 //seconds
     
+    lazy private var viewModel = SplashScreenViewModel(for: self)
     
-    var remoteConfig = RemoteConfig.remoteConfig()
-    
+    private let disposeBag = DisposeBag()
     
     override func viewDidLoad()
     {
@@ -30,63 +31,38 @@ class SplashScreenViewController: UtilitiesViewController
         //Listen Application Become Active Events to Check Connection Again
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: UIScene.willEnterForegroundNotification, object: nil)
         
-        connectionErrorBaseView.isHidden = true
+        bindUiElements()
     }
-    
     
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
         
         //Check Connection Status of Device and Pass to Next Screen
-        checkConnectivityAndProceedToMainScreen()
+        self.viewModel.applicationWillEnterForeground()
     }
     
-    private func checkConnectivityAndProceedToMainScreen()
+    func bindUiElements()
     {
-        //Fetch Firebase Remote Values if Connected to Internet
-        if BaseService.isConnectedToInternet
-        {
-            fetchRemoteValues()
-        }
-        //Show Connection Error Alert & Warning
-        else
-        {
-            connectionErrorBaseView.isHidden = false
-            
-            let title = NSLocalizedString("Connection Error", comment: "")
-            let message = NSLocalizedString("Your device is not connected to internet. You need internet connection to be able to use this app.", comment: "")
-            self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
-        }
-    }
-    
-    private func fetchRemoteValues()
-    {
-        let defaultValue = [FIREBASE_REMOTE_CONFIG_PARAM_NAME: "..." as NSObject]
-        remoteConfig.setDefaults(defaultValue)
+        _ = self.viewModel.isConnectionErrorHidden
+            .distinctUntilChanged()
+            .bind(to: connectionErrorBaseView.rx.isHidden)
+            .disposed(by: disposeBag)
         
-        remoteConfig.fetch {
-            (status, error) in
-            
-            DispatchQueue.main.async {
-                //Update Interface
-                if error == nil
-                {
-                    self.remoteConfig.activate(completion:nil)
-                    self.remoteConfigParamLabel.text = self.remoteConfig.configValue(forKey: self.FIREBASE_REMOTE_CONFIG_PARAM_NAME).stringValue ?? ""
-                    
-                    //Start Animation and Pass to Next Screen
-                    self.showAppStartingAnimationAndPassToNextScreen()
-                }
-                //Show Error Alert
-                else
-                {
-                    let title = NSLocalizedString("Remote Config Error", comment: "")
-                    let message = NSLocalizedString("Firebase Remote Config fetch failed due to an error.", comment: "")
-                    self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
-                }
-            }
-        }
+        _ = self.viewModel.remoteConfigParameter
+            .distinctUntilChanged()
+            .bind(to: remoteConfigParamLabel.rx.text)
+            .disposed(by: disposeBag)
+    }
+    
+    func showErrorAlertFor(title: String, message: String)
+    {
+        self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
+    }
+
+    func passToNextScreen()
+    {
+        showAppStartingAnimationAndPassToNextScreen()
     }
     
     private func showAppStartingAnimationAndPassToNextScreen()
@@ -142,7 +118,7 @@ class SplashScreenViewController: UtilitiesViewController
     
     @objc func applicationWillEnterForeground(notification: Notification)
     {
-        checkConnectivityAndProceedToMainScreen()
+        self.viewModel.applicationWillEnterForeground()
     }
 
 }

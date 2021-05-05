@@ -23,6 +23,7 @@
 		CCA7225B264286F8007538DB /* MovieSearchViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA7225A264286F8007538DB /* MovieSearchViewModelTests.swift */; };
 		CCA722962642AB7F007538DB /* MovieDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA722952642AB7F007538DB /* MovieDetailsViewModelTests.swift */; };
 		CCA7229A2642B345007538DB /* SearchDetailsCellViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA722992642B345007538DB /* SearchDetailsCellViewModelTests.swift */; };
+		CCA7229E2642D758007538DB /* SplashScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA7229D2642D758007538DB /* SplashScreenViewModel.swift */; };
 		CCAC59D72620449C00056921 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAC59D62620449C00056921 /* Localizable.strings */; };
 		CCAC59F22620493A00056921 /* ProgressView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCAC59F42620493A00056921 /* ProgressView.xib */; };
 		CCC41D7C261DA6AE00BDD601 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41D7B261DA6AE00BDD601 /* AppDelegate.swift */; };
@@ -74,6 +75,7 @@
 		CCA7227926428E0C007538DB /* RxRelay.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RxRelay.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCA722952642AB7F007538DB /* MovieDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewModelTests.swift; sourceTree = "<group>"; };
 		CCA722992642B345007538DB /* SearchDetailsCellViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchDetailsCellViewModelTests.swift; sourceTree = "<group>"; };
+		CCA7229D2642D758007538DB /* SplashScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenViewModel.swift; sourceTree = "<group>"; };
 		CCAC59D62620449C00056921 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		CCAC59EA262048FC00056921 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Main.strings; sourceTree = "<group>"; };
 		CCAC59F82620494100056921 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/ProgressView.xib; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 				CC448A312640435B00A00391 /* MovieSearchViewModel.swift */,
 				CC6686D6264121DA0079CCEC /* MovieDetailsViewModel.swift */,
 				CC6686DB264156330079CCEC /* SearchDetailsCellViewModel.swift */,
+				CCA7229D2642D758007538DB /* SplashScreenViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -459,6 +462,7 @@
 				CCC41D80261DA6AE00BDD601 /* SplashScreenViewController.swift in Sources */,
 				CC6686D7264121DA0079CCEC /* MovieDetailsViewModel.swift in Sources */,
 				CCC41DB6261DA7CE00BDD601 /* MainScreenViewController.swift in Sources */,
+				CCA7229E2642D758007538DB /* SplashScreenViewModel.swift in Sources */,
 				CC448A4226404E5500A00391 /* SearchMoviesForNameService.swift in Sources */,
 				CC6686DC264156330079CCEC /* SearchDetailsCellViewModel.swift in Sources */,
 				CC6686F2264183ED0079CCEC /* MoviePosterManager.swift in Sources */,
