@@ -9,4 +9,15 @@ target 'Moview' do
   pod 'AlamofireObjectMapper', '~> 5.2'
   pod 'Firebase/Analytics'
   pod 'Firebase/RemoteConfig'
+  pod "RxSwift"
+  pod "RxCocoa"
 end
+
+target 'MoviewTests' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  use_frameworks!
+  
+  pod "RxSwift"
+  pod "RxCocoa"
+end
+

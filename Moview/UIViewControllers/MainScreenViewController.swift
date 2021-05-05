@@ -6,163 +6,99 @@
 //
 
 import UIKit
+import RxCocoa
+import RxSwift
 
 
-class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegate, PreviousSearchResultsViewDelegate, UITextFieldDelegate
+class MainScreenViewController: UtilitiesViewController, MovieSearchScreen, UITextFieldDelegate
 {
     private let SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN = "MainScreenToDetailsScreen"
-    private let ANIMATION_DURATION = 0.25 //seconds
-    private let MOVIE_PREVIEW_FRAME_HEIGHT: CGFloat = 430 //pixels
     
-    @IBOutlet var searchFieldBar: UIView!
     @IBOutlet var searchTextField: UITextField!
     @IBOutlet var searchButton: UIButton!
-    @IBOutlet var appLogoImageView: UIImageView!
-    @IBOutlet var movieDetailsContainer: UIView!
+    @IBOutlet var searchResultTableView: UITableView!
     
-    @IBOutlet var searchBarContainerHeightConstraint: NSLayoutConstraint!
-    
-    private lazy var moviePreviewView: MoviePreviewView = (Bundle.main.loadNibNamed("MoviePreviewView", owner: self, options: nil)?.first as! MoviePreviewView)
-    private lazy var previousSearchResultsView: PreviousSearchResultsView = (Bundle.main.loadNibNamed("PreviousSearchResultsView", owner: self, options: nil)?.first as! PreviousSearchResultsView)
-    private var movieContentToDisplayDetails: MovieContentContainer?
-    private var isDisplayingSearchResult: Bool = false
-    
+    lazy private var viewModel = MovieSearchViewModel(with: self, service: SearchMoviesForNameService())
+    private let disposeBag = DisposeBag()
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(imageDownloadCompleted), name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
-        
-        moviePreviewView.delegate = self
-        previousSearchResultsView.delegate = self
-        
-        searchButton.isEnabled = false
+        setupUiBindings()
     }
     
-    deinit
+    func setupUiBindings()
     {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
-    }
-    
-    private func searchMovieForTitle(title: String)
-    {
-        //Show Activity Indicator to Notify User
-        showProgressView()
+        //Binding Search Text Field to Model
+        let searchBinder: ControlProperty<String> = searchTextField.rx.text.orEmpty
+        searchBinder
+            .distinctUntilChanged()
+            .bind(to: viewModel.searchString)
+            .disposed(by: disposeBag)
         
-        //Search Movie for Title
-        MovieContentManager.searchMoviesFor(searchString: title) {
-            (success, movieContentList, error) in
-            
-            self.hideProgressView()
-            
-            if (success && movieContentList.count > 0)
-            {
-                self.displaySearchResults()
-                
-                if movieContentList.count == 1
+        //Set Search Button State According to View Model
+        _ = self.viewModel.canStartSearch
+            .subscribe(onNext:
+                        { [unowned self] in
+                           let canSearch = $0
+                           self.searchButton.isEnabled = canSearch })
+            .disposed(by: disposeBag)
+        
+        //Show/Hide Activity Indicator Accordint to Search Status
+        _ = self.viewModel.isSearching
+            .distinctUntilChanged()
+            .subscribe(onNext:
+                        { [unowned self] in
+                            $0 ? self.searchStarted() : self.hideProgressView()})
+            .disposed(by: disposeBag)
+        
+        //Binding TableView to Search Results
+        self.viewModel.searchResult
+            .bind(to: self.searchResultTableView.rx.items(cellIdentifier: "MovieResultCell"))
+            {(index, movie: MovieContent, cell) in
+                if let searchResultCell = cell as? SearchDetailTableViewCell
                 {
-                    self.addMoviePreviewViewToScreen(movieContentContainer: movieContentList[0])
+                    searchResultCell.setViewModel(SearchDetailsCellViewModel(with: searchResultCell, movie: movie))
                 }
-                else
-                {
-                    self.addSearchResultsViewToScreen(movieContentList)
-                }
-            }
-            //Show Error Alert
-            else
-            {
-                self.hideSearchResults()
-                let title = NSLocalizedString("Movie Not Found", comment: "")
-                let message = NSLocalizedString("Please search another movie title", comment: "")
-                self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
-            }
-        }
-    }
-    
-    private func hideSearchResults()
-    {
-        moviePreviewView.isHidden = true
-        previousSearchResultsView.isHidden = true
-    }
-    
-    private func displaySearchResults()
-    {
-        if !isDisplayingSearchResult
-        {
-            //Set New Search Base View Height
-            searchBarContainerHeightConstraint.constant = (searchFieldBar.frame.size.height + MOVIE_PREVIEW_FRAME_HEIGHT)
-            
-            UIView.animate(withDuration: ANIMATION_DURATION)
-            {
-                self.appLogoImageView.alpha = 0
-                self.view.layoutIfNeeded()
-            }
-        }
-    }
-    
-    private func addMoviePreviewViewToScreen(movieContentContainer: MovieContentContainer)
-    {
-        if moviePreviewView.superview == nil
-        {
-            movieDetailsContainer.addSubview(moviePreviewView)
-            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: moviePreviewView))
-            movieDetailsContainer.superview?.layoutIfNeeded()
-        }
+            }.disposed(by: disposeBag)
         
-        //Set Movie Content of Movie Preview View
-        moviePreviewView.setMoviePreviewContent(movieContentContainer: movieContentContainer)
+        //Show/Hide Table View According to Search Resul
+        self.viewModel.searchResult
+            .subscribe(onNext:
+                        {[weak self] in
+                            self?.searchResultTableView.isHidden = $0.isEmpty})
+            .disposed(by: disposeBag)
         
-        moviePreviewView.isHidden = false
-        previousSearchResultsView.isHidden = true
+        //Listen For Did Select Cell at Index Events
+        self.searchResultTableView.rx.itemSelected
+            .subscribe(onNext:
+                        { [weak self] indexPath in
+                            if let cell = self?.searchResultTableView.cellForRow(at: indexPath) as? SearchDetailTableViewCell
+                            {
+                                if let movie = cell.viewModel?.movieDetails
+                                {
+                                    self?.passToMovieDetailsScreenFor(movieContent: movie)
+                                }
+                            }
+                        })
+            .disposed(by: disposeBag)
     }
     
-    private func addSearchResultsViewToScreen(_ resultList: [MovieContentContainer])
+    func showSearchErrorAlertFor(title: String, message: String)
     {
-        if previousSearchResultsView.superview == nil
-        {
-            movieDetailsContainer.addSubview(previousSearchResultsView)
-            movieDetailsContainer.addConstraints(getMovieDetailsConstraintsFor(view: previousSearchResultsView))
-            previousSearchResultsView.superview?.layoutIfNeeded()
-        }
-        
-        //Refresh Previous Movie Searches Before Showing The View
-        previousSearchResultsView.setPreviousSearchResults(movieContents: resultList)
-        previousSearchResultsView.isHidden = false
-        moviePreviewView.isHidden = true
+        self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
     }
     
-    private func getMovieDetailsConstraintsFor(view: UIView) -> [NSLayoutConstraint]
+    func passToMovieDetailsScreenFor(movieContent: MovieContent)
     {
-        view.translatesAutoresizingMaskIntoConstraints = false
-        
-        let topConstraint = NSLayoutConstraint(item: view , attribute: .top, relatedBy: .equal, toItem: searchFieldBar, attribute: .bottom, multiplier: 1, constant: 0)
-        let leadingConstraint = NSLayoutConstraint(item: view, attribute: .leading, relatedBy: .equal, toItem: movieDetailsContainer, attribute: .leading, multiplier: 1, constant: 0)
-        let trailingConstraint = NSLayoutConstraint(item: view, attribute: .trailing, relatedBy: .equal, toItem: movieDetailsContainer, attribute: .trailing, multiplier: 1, constant: 0)
-        let heightConstraint = NSLayoutConstraint(item: view, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: MOVIE_PREVIEW_FRAME_HEIGHT)
-        
-        return [topConstraint, leadingConstraint, trailingConstraint, heightConstraint]
+        self.performSegue(withIdentifier: self.SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: movieContent)
     }
     
-    private func isValidSearchString(searchString: String?) -> Bool
+    func searchStarted()
     {
-        return (searchString?.trimmingCharacters(in: .whitespacesAndNewlines).count ?? 0 > 0)
-    }
-    
-    private func passToMovieDetailsScreen(selectedMovieContentContainer: MovieContentContainer)
-    {
-        showProgressView()
-        
-        MovieContentManager.searchForMovieContainer(container: selectedMovieContentContainer) {
-            (succes, movieContainer, error) in
-            
-            //Show Movie Details Anyway
-            DispatchQueue.main.async {
-                self.hideProgressView()
-                self.movieContentToDisplayDetails = movieContainer
-                self.performSegue(withIdentifier: self.SEGUE_IDENTIFIER_MAIN_SCREEN_TO_DETAILS_SCREEN, sender: self)
-            }
-        }
+        self.searchTextField.resignFirstResponder()
+        self.showProgressView()
     }
     
 
@@ -172,21 +108,9 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     {
         if let detailsViewController = segue.destination as? MovieDetailsViewController
         {
-            detailsViewController.setMovieDetails(movieContentContainer: movieContentToDisplayDetails!)
-            searchTextField.text = ""
-        }
-    }
-    
-    
-    //MARK: - Notification Methods
-    
-    @objc func imageDownloadCompleted(notification: Notification)
-    {
-        if let movieDetails = notification.object as? MovieContentContainer
-        {
-            if movieDetails.posterImage != nil && moviePreviewView.getMovieContentId() == movieDetails.movieContent.imdbId
+            if let selectedMovie = sender as? MovieContent
             {
-                moviePreviewView.setPosterImage(image: movieDetails.posterImage!)
+                detailsViewController.setMovieDetailsViewModel(model: MovieDetailsViewModel(with: detailsViewController, movie: selectedMovie, service: SearchMovieForIdService()))
             }
         }
     }
@@ -196,24 +120,7 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     
     @IBAction func searchButtonPressAction(_ sender: Any)
     {
-        //Checking Search String is Valid
-        if isValidSearchString(searchString: searchTextField.text)
-        {
-            searchMovieForTitle(title: searchTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines))
-            searchTextField.resignFirstResponder()
-        }
-        //Show Error Alert
-        else
-        {
-            let title = NSLocalizedString("Search Error", comment: "")
-            let message = NSLocalizedString("Please enter a valid movie title to search.", comment: "")
-            self.showAlertController(title: title, message: message, cancelButton: NSLocalizedString("OK", comment: ""))
-        }
-    }
-    
-    @IBAction func searchTextFieldEditingChangedAction(_ textField: UITextField)
-    {
-        searchButton.isEnabled = isValidSearchString(searchString: searchTextField.text)
+        self.viewModel.initiateMoviewSearch()
     }
     
     @IBAction func userTapToScreenGestureRecogniserAction(_ sender: Any)
@@ -222,33 +129,18 @@ class MainScreenViewController: UtilitiesViewController, MoviePreviewViewDelegat
     }
     
     
-    //MARK: - Moview Preview View Delegate Methods
-    
-    func userTapToSeeMoFullMoviewDetailsFor(movieContentContainer: MovieContentContainer)
-    {
-        passToMovieDetailsScreen(selectedMovieContentContainer: movieContentContainer)
-    }
-    
-    
-    //MARK - Previous Search Results View Delegate Methods
-    
-    func userDidSelectSearchResult(selectedMovieContentContainer: MovieContentContainer)
-    {
-        passToMovieDetailsScreen(selectedMovieContentContainer: selectedMovieContentContainer)
-    }
-    
-    
     //MARK: - Text field Delegate Methods
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool
     {
-        searchButtonPressAction(searchButton)
+        searchButtonPressAction(searchButton as Any)
         return true
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool
     {
-        hideSearchResults()
+        self.viewModel.searchResult.accept([])
+        textField.resignFirstResponder()
         return true
     }
 }

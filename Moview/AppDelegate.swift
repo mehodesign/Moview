@@ -17,6 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     {
         // Override point for customization after application launch.
         FirebaseApp.configure()
+        
+        //Configure Poster Image Download Service
+        MoviePosterManager.shared.setDonwloadService(service: DownloadMoviePosterService())
+        
         return true
     }
 

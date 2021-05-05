@@ -45,7 +45,7 @@ class SplashScreenViewController: UtilitiesViewController
     private func checkConnectivityAndProceedToMainScreen()
     {
         //Fetch Firebase Remote Values if Connected to Internet
-        if RequestManager.isConnectedToInternet
+        if BaseService.isConnectedToInternet
         {
             fetchRemoteValues()
         }

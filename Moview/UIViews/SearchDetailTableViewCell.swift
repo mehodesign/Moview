@@ -7,51 +7,50 @@
 
 import UIKit
 
-class SearchDetailTableViewCell: UITableViewCell
+class SearchDetailTableViewCell: UITableViewCell, SearchDetailsCell
 {
-    
     @IBOutlet var movieTitleLabel: UILabel!
     @IBOutlet var movieDetailsLabel: UILabel!
     @IBOutlet var moviewPreviewImage: UIImageView!
     
-    
-    private var currentMovieContentContainer: MovieContentContainer?
+    public private(set) var viewModel: SearchDetailsCellViewModel?
     
     override func awakeFromNib()
     {
         super.awakeFromNib()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(imageDownloadCompleted), name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
-    }
-    
-    deinit
-    {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: GlobalConstants.NOTIFICATION_KEY_MOVIE_POSTER_DOWNLOAD_COMPLETED), object: nil)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool)
     {
         super.setSelected(selected, animated: animated)
-        
     }
     
-    func setPreviousSearch(movieContentContainer: MovieContentContainer)
+    func setViewModel(_ model: SearchDetailsCellViewModel)
     {
-        currentMovieContentContainer = movieContentContainer
+        self.viewModel = model
         
         updateCellDetails()
     }
     
     private func updateCellDetails()
     {
-        movieTitleLabel.text = currentMovieContentContainer?.movieContent.movieTitle
+        if let movieContent = self.viewModel?.movieDetails
+        {
+            movieTitleLabel.text = movieContent.movieTitle
         
-        let yearString = NSLocalizedString("Year", comment: "") + ": " + (currentMovieContentContainer?.movieContent.yearOfRelease ?? NSLocalizedString("Unknown", comment: ""))
-        movieDetailsLabel.text = yearString
-        
-        setPosterImage(image: currentMovieContentContainer!.posterImage)
+            let yearString = NSLocalizedString("Year", comment: "") + ": " + (movieContent.yearOfRelease)
+            movieDetailsLabel.text = yearString
+            
+            //setPosterImage(image: currentMovieContent!.posterImage)
+        }
     }
     
+    func posterImageDidUpdate(image: UIImage)
+    {
+        moviewPreviewImage.image = image
+    }
+    
+    /*
     private func setPosterImage(image: UIImage?)
     {
         if image != nil
@@ -62,13 +61,15 @@ class SearchDetailTableViewCell: UITableViewCell
         {
             moviewPreviewImage.image = UIImage(systemName: "questionmark.circle")!
         }
+ 
     }
-    
+    */
     
     //MARK: - Notification Methods
-    
+    /*
     @objc func imageDownloadCompleted(notification: Notification)
     {
+        
         if let movieDetails = notification.object as? MovieContentContainer
         {
             if movieDetails.posterImage != nil && currentMovieContentContainer?.movieContent.imdbId == movieDetails.movieContent.imdbId
@@ -76,5 +77,7 @@ class SearchDetailTableViewCell: UITableViewCell
                 setPosterImage(image: currentMovieContentContainer!.posterImage)
             }
         }
+ 
     }
+     */
 }
