@@ -49,35 +49,4 @@ class SearchDetailTableViewCell: UITableViewCell, SearchDetailsCell
     {
         moviewPreviewImage.image = image
     }
-    
-    /*
-    private func setPosterImage(image: UIImage?)
-    {
-        if image != nil
-        {
-            moviewPreviewImage.image = currentMovieContentContainer!.posterImage
-        }
-        else
-        {
-            moviewPreviewImage.image = UIImage(systemName: "questionmark.circle")!
-        }
- 
-    }
-    */
-    
-    //MARK: - Notification Methods
-    /*
-    @objc func imageDownloadCompleted(notification: Notification)
-    {
-        
-        if let movieDetails = notification.object as? MovieContentContainer
-        {
-            if movieDetails.posterImage != nil && currentMovieContentContainer?.movieContent.imdbId == movieDetails.movieContent.imdbId
-            {
-                setPosterImage(image: currentMovieContentContainer!.posterImage)
-            }
-        }
- 
-    }
-     */
 }
