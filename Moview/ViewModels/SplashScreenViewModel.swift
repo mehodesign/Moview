@@ -22,6 +22,7 @@ class SplashScreenViewModel
     private let FIREBASE_REMOTE_CONFIG_PARAM_NAME = "loodos_splash_text"
     
     private weak var view: SplashScreen?
+    private var connectionService: BaseService?
     
     private var remoteConfig = RemoteConfig.remoteConfig()
     
@@ -29,9 +30,10 @@ class SplashScreenViewModel
     public var isConnectionErrorHidden = BehaviorRelay(value: true)
     
     
-    init(for view: SplashScreen)
+    init(for view: SplashScreen, service: BaseService)
     {
         self.view = view
+        self.connectionService = service
     }
     
     public func applicationWillEnterForeground()
@@ -42,7 +44,7 @@ class SplashScreenViewModel
     private func checkConnectivityAndProceedToMainScreen()
     {
         //Fetch Firebase Remote Values if Connected to Internet
-        if BaseService.isConnectedToInternet
+        if connectionService?.isConnectedToInternet ?? false
         {
             self.isConnectionErrorHidden.accept(true)
             fetchRemoteValues()

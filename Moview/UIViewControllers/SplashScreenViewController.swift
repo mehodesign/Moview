@@ -20,7 +20,7 @@ class SplashScreenViewController: UtilitiesViewController, SplashScreen
     private let SEGUE_IDENTIFIER_TO_MAIN_SCREEN = "SplashScreenToMainScreen"
     private let SPLASH_ANIMATION_DURATION = 3.0 //seconds
     
-    lazy private var viewModel = SplashScreenViewModel(for: self)
+    lazy private var viewModel = SplashScreenViewModel(for: self, service: BaseService())
     
     private let disposeBag = DisposeBag()
     

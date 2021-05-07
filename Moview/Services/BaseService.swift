@@ -19,7 +19,7 @@ class BaseService: NSObject
     
     //MARK: - Check Internet Reachability
     
-    class var isConnectedToInternet:Bool
+    public var isConnectedToInternet:Bool
     {
         return NetworkReachabilityManager()!.isReachable
     }
